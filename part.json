@@ -1,5 +1,5 @@
 {
-	"name": "Crud",
+	"name": "crud",
 	"router": [{
 		"name": "Basic",
 		"src": "router.js"
