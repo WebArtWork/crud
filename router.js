@@ -26,13 +26,13 @@ module.exports = function(sd) {
 				sd['populate_'+prefix] = config.populate;
 			}
 		}
-		var crudTypes = ['create', 'get', 'update', 'delete'];
+		const crudTypes = ['create', 'get', 'update', 'delete'];
 		sd.crud = function(part, config){
-			for (var i = 0; i < crudTypes.length; i++) {
+			for (let i = 0; i < crudTypes.length; i++) {
 				if(Array.isArray(config[crudTypes[i]])){
-					for (var i = 0; i < config[crudTypes[i]].length; i++) {
-						if(typeof config[crudTypes[i]][i] != 'object') continue;
-						fill_crud(part, crudTypes[i], config[crudTypes[i]][i]);
+					for (let j = 0; j < config[crudTypes[i]].length; j++) {
+						if(typeof config[crudTypes[i]][j] != 'object') continue;
+						fill_crud(part, crudTypes[i], config[crudTypes[i]][j]);
 					}
 				}else if(typeof config[crudTypes[i]] == 'object'){
 					fill_crud(part, crudTypes[i], config[crudTypes[i]]);

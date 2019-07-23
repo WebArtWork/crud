@@ -1,4 +1,5 @@
 {
+	"priority": 900,
 	"name": "crud",
 	"router": [{
 		"name": "Basic",
