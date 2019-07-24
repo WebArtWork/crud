@@ -25,6 +25,31 @@ module.exports = function(sd) {
 			if(typeof config.populate == 'function'){
 				sd['populate_'+prefix] = config.populate;
 			}
+			if(typeof config.names == 'object'){
+				for(let name in config.names){
+					if(typeof config.names[name].ensure == 'function'){
+						sd['ensure_'+prefix+'_'+name] = config.names[name].ensure;
+					}
+					if(typeof config.names[name].query == 'function'){
+						sd['query_'+prefix+'_'+name] = config.names[name].query;
+					}
+					if(typeof config.names[name].sort == 'function'){
+						sd['sort_'+prefix+'_'+name] = config.names[name].sort;
+					}
+					if(typeof config.names[name].skip == 'function'){
+						sd['skip_'+prefix+'_'+name] = config.names[name].skip;
+					}
+					if(typeof config.names[name].limit == 'function'){
+						sd['limit_'+prefix+'_'+name] = config.names[name].limit;
+					}
+					if(typeof config.names[name].select == 'function'){
+						sd['select_'+prefix+'_'+name] = config.names[name].select;
+					}
+					if(typeof config.names[name].populate == 'function'){
+						sd['populate_'+prefix+'_'+name] = config.names[name].populate;
+					}
+				}
+			}
 		}
 		const crudTypes = ['create', 'get', 'update', 'delete'];
 		sd.crud = function(part, config){
