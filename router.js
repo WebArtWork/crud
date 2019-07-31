@@ -211,7 +211,7 @@ module.exports = function(sd) {
 				}
 				if(crud.delete){
 					for (var i = 0; i < crud.delete.length; i++) {
-						crud.delete[i]&&crud_delete(crud.delete[i]);
+						crud_delete(crud.delete[i]||'');
 					}
 				}
 			/*
