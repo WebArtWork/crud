@@ -67,6 +67,15 @@ module.exports = function(sd) {
 	/*
 	*	Crud Use
 	*/
+		const ensure = function(name){
+			return function(req, res, next){
+				if(typeof sd[name] == 'function'){
+					sd[name](req, res, next);
+				}else{
+					sd.ensure(req, res, next);
+				}
+			}
+		}
 		var add_crud = function(crud, part, unique=true){
 			var partName = part.name.toLowerCase();
 			var crudName = crud.name.toLowerCase();
@@ -91,7 +100,7 @@ module.exports = function(sd) {
 			/*
 			*	Create
 			*/
-				router.post("/create", sd['ensure_create_'+crudName]||sd.ensure, function(req, res) {
+				router.post("/create", ensure('ensure_create_'+crudName), function(req, res) {
 					var doc = new Schema();
 					if(typeof doc.create !== 'function'){
 						return res.json(false);
@@ -108,7 +117,7 @@ module.exports = function(sd) {
 					get_unique[name] = true;
 					var final_name = '_get_'+crudName;
 					if(name) final_name += '_'+name;
-					router.get("/get"+name, sd['ensure'+final_name]||sd.next, function(req, res) {
+					router.get("/get"+name, ensure('ensure'+final_name), function(req, res) {
 						var query = sd['query'+final_name]&&sd['query'+final_name](req, res)||{
 							moderators: req.user&&req.user._id
 						};
@@ -153,7 +162,7 @@ module.exports = function(sd) {
 				var crud_update = function(upd){
 					let final_name = '_update_'+crudName;
 					if(upd.name) final_name += '_'+upd.name;
-					router.post("/update"+(upd.name||''), sd['ensure'+final_name]||sd.ensure, function(req, res) {
+					router.post("/update"+(upd.name||''), ensure('ensure'+final_name), function(req, res) {
 						Schema.findOne(sd['query'+final_name]&&sd['query'+final_name](req, res)||{
 							_id: req.body._id,
 							moderators: req.user&&req.user._id
@@ -181,7 +190,7 @@ module.exports = function(sd) {
 				var crud_delete = function(name){
 					let final_name = '_delete_'+crudName;
 					if(name) final_name += '_'+name;
-					router.post("/delete"+name, sd['ensure' + final_name] || sd.ensure, function(req, res) {
+					router.post("/delete"+name, ensure('ensure'+final_name), function(req, res) {
 						let q = Schema.findOne(sd['query' + final_name] && sd['query' + final_name](req, res) || {
 							_id: req.body._id,
 							author: req.user._id
