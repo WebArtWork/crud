@@ -25,33 +25,8 @@ module.exports = function(sd) {
 			if(typeof config.populate == 'function'){
 				sd['populate_'+prefix] = config.populate;
 			}
-			if(typeof config.names == 'object'){
-				for(let name in config.names){
-					if(typeof config.names[name].ensure == 'function'){
-						sd['ensure_'+prefix+'_'+name] = config.names[name].ensure;
-					}
-					if(typeof config.names[name].query == 'function'){
-						sd['query_'+prefix+'_'+name] = config.names[name].query;
-					}
-					if(typeof config.names[name].sort == 'function'){
-						sd['sort_'+prefix+'_'+name] = config.names[name].sort;
-					}
-					if(typeof config.names[name].skip == 'function'){
-						sd['skip_'+prefix+'_'+name] = config.names[name].skip;
-					}
-					if(typeof config.names[name].limit == 'function'){
-						sd['limit_'+prefix+'_'+name] = config.names[name].limit;
-					}
-					if(typeof config.names[name].select == 'function'){
-						sd['select_'+prefix+'_'+name] = config.names[name].select;
-					}
-					if(typeof config.names[name].populate == 'function'){
-						sd['populate_'+prefix+'_'+name] = config.names[name].populate;
-					}
-				}
-			}
 		}
-		const crudTypes = ['create', 'get', 'update', 'delete'];
+		const crudTypes = ['create', 'get', 'update', 'unique', 'delete'];
 		sd.crud = function(part, config){
 			for (let i = 0; i < crudTypes.length; i++) {
 				if(Array.isArray(config[crudTypes[i]])){
@@ -184,6 +159,39 @@ module.exports = function(sd) {
 						crud_update(crud.update[i]);
 					}
 				}else if(typeof crud.update == 'object') crud_update(crud.update);
+			/*
+			*	Unique
+			*/
+				var crud_unique = function(upd){
+					let final_name = '_unique_'+crudName;
+					if(upd.name) final_name += '_'+upd.name;
+					router.post("/unique"+(upd.name||''), ensure('ensure'+final_name), function(req, res) {
+						Schema.findOne(sd['query'+final_name]&&sd['query'+final_name](req, res)||{
+							_id: req.body._id,
+							moderators: req.user&&req.user._id
+						}, function(err, doc){
+							if(err||!doc) return res.json(false);
+							let query = sd['select'+final_name]&&sd['select'+final_name](req, res, upd);
+							if(!query){
+								query = {};
+								query[upd.key] = req.body[upd.key];
+							}
+							Schema.findOne(query, function(err, sdoc){
+								if(sdoc) return res.json(doc[upd.key]);
+								doc[upd.key] = req.body[upd.key];
+								doc.markModified(upd.key);
+								doc.save(function(err){
+									res.json(doc[upd.key]);
+								});
+							});
+						});
+					});
+				}
+				if(Array.isArray(crud.unique)){
+					for (var i = 0; i < crud.unique.length; i++) {
+						crud_unique(crud.unique[i]);
+					}
+				}else if(typeof crud.unique == 'object') crud_unique(crud.unique);
 			/*  
 			*	Delete
 			*/
