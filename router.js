@@ -209,12 +209,11 @@ module.exports = function(sd) {
 						}
 						q.exec(function(err, doc) {
 							if(err||!doc) return res.json(false);
-							Schema.remove(sd['query' + final_name] && sd['query' + final_name](req, res) || {
+							Schema.deleteOne(sd['query' + final_name] && sd['query' + final_name](req, res) || {
 								_id: req.body._id,
 								author: req.user._id
 							}, function(err) {
 								if (err){
-									console.log(err);
 									res.json(false);
 								}else{
 									if(typeof sd['on'+name] == 'function'){
